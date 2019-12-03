@@ -1,0 +1,149 @@
+# zookeeper集群的搭建及可视化页面安装配置
+
+---
+
+**1 搭建zookeeper集群**
+
+--1.1 基本环境
+- Ubuntu16.04
+- java version "13.0.1"
+- zookeeper服务器集群(3)：10.10.27.35，10.10.27.36, 10.10.27.37(zookeeper集群存在超过一半的机器就能正常工作，因此安装3台和
+4台都只允许一台服务器挂掉，故通常集群数量通常为奇数)
+    
+    
+--1.2 安装zookeeper(各台服务器安装过程相同，不同之处会指出)
+- 1.2.1 下载zookeeper压缩包并解压
+~~~
+# wget -P可将压缩包下载至指定位置
+# 需安装带-bin后缀的tar.gz文件，不带该后缀的压缩包安装失败
+wget -P /root/zookeeper https://archive.apache.org/dist/zookeeper/zookeeper-3.5.5/apache-zookeeper-3.5.5-bin.tar.gz
+
+#解压至指定目录
+tar -zxvf /root/zookeeper/apache-zookeeper-3.5.5-bin.tar.gz -C /root/zookeeper
+~~~
+
+- 1.2.2 配置
+~~~
+#在节点目录下安装data和logs目录
+cd /root/zookeeper/apache-zookeeper-3.5.5-bin
+mkdir data
+mkdir logs
+
+#在data目录创建myid文件
+cd /root/zookeeper/apache-zookeeper-3.5.5/data
+vi myid(该服务器节点写入的数字应该与以下zoo.cfg配置的对应的服务器的数字对应，例如27.35对应1)
+
+~~~
+
+- 1.2.3 zoo.cfg配置
+~~~
+#配置
+cd /root/zookeeper/apache-zookeeper-3.5.5-bin/conf
+touch zoo.cfg
+vim zoo.cfg
+#写入以下配置
+tickTime=2000
+initLimit=10
+syncLimit=5
+dataDir=/root/zookeeper/apache-zookeeper-3.5.5-bin/data
+dataLogDir=/root/zookeeper/apache-zookeeper-3.5.5-bin/logs
+autopurge.snapRetainCount=10
+autopurge.purgeInterval=1
+clientPort=2182
+server.1=10.10.27.35:2888:3888
+server.2=10.10.27.36:2888:3888
+server.3=10.10.27.37:2888:3888
+
+#配置说明
+#tickTime=2000: Zookeeper最小时间单元，单位为ms，默认值为3000。也就是Leader与Follower每隔tickTime时间就会发送一个心跳
+#initLimit=10: Leader服务器等待Follower启动并完成数据同步的时间，默认值10。 当已经超过10*tickTime后，Leader还没有收到Follower的返回信息,那么表明这个Follower连接或同步失败
+#syncLimit=5: Leader服务器和Follower之间进行心跳检测的最大延时时间，默认值5，最长不能超过5*tickTime
+#dataDir=/root/zookeeper/apache-zookeeper-3.5.5-bin/data: 存放内存数据结构的snapshot，便于快速恢复，默认情况下，事务日志也会存储在这里。建议同时配置参数dataLogDir, 事务日志的写性能直接影响zk性能
+#dataLogDir=/root/zookeeper/apache-zookeeper-3.5.5-bin/logs,dataLogDir事务日志输出目录。为了达到性能最大化，一般建议把dataDir和dataLogDir分到不同的磁盘上，这样就可以充分利用磁盘顺序写的特性
+#autopurge.purgeInterval, autopurge.snapRetainCount: 客户端在与zookeeper交互过程中会产生非常多的日志，而且zookeeper也会将内存中的数据作为snapshot保存下来，这些数据是不会被自动删除的，这样磁盘中这样的数据就会越来越多。不过可以通过这两个参数来设置，让zookeeper自动删除数据
+#autopurge.purgeInterval: 指定自动清理快照文件和事务日志文件的时间，单位为h，默认为0表示不自动清理，这个时候可以使用脚本zkCleanup.sh手动清理。如果不清理则磁盘空间占用越来越大
+#autopurge.snapRetainCount: 用于指定保留快照文件和事务日志文件的个数，默认为3
+#clientPort=2182: 顾名思义，就是客户端连接zookeeper服务的端口。这是一个TCP port,配置前需要使用netstat -anp | grep 2182查看该端口是否被占用
+#server.id=IP/Host : port1 : port2
+#   id: 用来配置ZK集群中的各节点，并建议id的值和myid保持一致
+#   IP/Host: 服务器的 IP 或者是与 IP 地址做了映射的主机名
+#   port1: Leader和Follower或Observer交换数据使用
+#   port2: 用于Leader选举
+#   注意：如果是伪集群的配置方式，不同的 Zookeeper 实例通信端口号不能一样，所以要给它们分配不同的端口号
+~~~
+
+- 1.2.4 启动集群中的节点 
+~~~
+#bin目录下
+./zkServer.sh start
+
+#查看是否启动成功
+jps
+#显示
+23282 Jps
+31492 NodeManager
+40485 Supervisor
+21270 Main
+41510 HRegionServer
+41384 Main
+43580 QuorumPeerMain
+40509 logviewer
+42862 Main
+46910 DataNode
+#QuorumPeerMain 是 zookeeper 进程，说明启动成功
+
+#或者
+./zkServer.sh status
+#显示(leader或者follower)
+ZooKeeper JMX enabled by default
+Using config: /root/zookeeper/apache-zookeeper-3.5.5-bin/bin/../conf/zoo.cfg
+Client port found: 2182. Client address: localhost.
+Mode: leader
+
+#启动失败可查看logs下的日志寻找原因
+~~~
+
+**2 zookeeper可视化页面安装配置**
+
+--2.1 基本环境
+- Ubuntu16.04
+- openjdk version "1.8.0_222"(jdk 13版本启动失败)
+- 服务器：10.10.26.26
+
+--2.2 安装Elasticsearch
+- 2.2.1 安装
+~~~
+git clone https://github.com/DeemOpen/zkui.git
+#在zkui目录下执行
+mvn clean install
+~~~
+
+- 2.2.2 配置
+~~~
+#
+vim config.cfg
+# zkui web页面访问端口(配置前需要使用netstat -anp | grep 9090查看该端口是否被占用)
+serverPort=9090
+
+# zookeeper集群的IP地址和端口(此处需配置集群中的一个已安装好的zookeeper节点ip和port)
+zkServer=10.10.27.35:2182
+
+# 设置登录zkui的用户名和密码，这里是默认值
+userSet = {"users": [{ "username":"admin" , "password":"manager","role": "ADMIN" },{ "username":"appconfig" , "password":"appconfig","role": "USER" }]}
+~~~
+
+- 2.2.3 启动访问
+~~~
+#target目录下
+nohup java -jar target/zkui-2.0-SNAPSHOT-jar-with-dependencies.jar &
+
+#web页面访问：http://10.10.26.26:9090，输入设置好的用户名和密码即可登录
+#在web页面增加一个node可通过在集群中节点的bin目录执行：./zkCli.sh -server 10.10.27.37:2182， 可进入并实时get到插入数据
+~~~
+
+**3 参考**
+- 3.1 zookeeper集群搭建参考：https://juejin.im/post/5ba879ce6fb9a05d16588802#heading-6
+- 3.2 zookeeper集群搭建参考：https://blog.csdn.net/winy_lm/article/details/81906723
+- 3.3 zkui安装配置参考：https://www.cnblogs.com/smail-bao/p/7794636.html
+- 3.4 zkui安装配置参考：https://cloud.tencent.com/developer/article/1358483
+- 3.5 zookeeper命令行查询节点：从Paxos到Zookeeper分布式一致性原理与实践第五章
