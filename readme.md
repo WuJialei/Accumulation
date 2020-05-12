@@ -1,4 +1,4 @@
-# 技术总结
+# 学习记录
 
 ---
 
@@ -35,3 +35,5 @@
 - [25.基于SpringBoot创建RESTful风格接口](https://github.com/WuJialei/Accumulation/blob/master/25.%E5%9F%BA%E4%BA%8ESpringBoot%E5%88%9B%E5%BB%BARESTful%E9%A3%8E%E6%A0%BC%E6%8E%A5%E5%8F%A3.md)
 
 - [26.MongoDB数据库的介绍和使用](https://github.com/WuJialei/Accumulation/blob/master/26.MongoDB数据库的介绍和使用.md)
+
+- [27.基于Flink计算实时TopN流量、会话](https://github.com/WuJialei/Accumulation/blob/master/27.基于Flink计算实时TopN流量、会话.md)
