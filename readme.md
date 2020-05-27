@@ -39,3 +39,5 @@
 - [27.基于Flink计算实时TopN流量、会话](https://github.com/WuJialei/Accumulation/blob/master/27.基于Flink计算实时TopN流量、会话.md)
 
 - [28.关于Flink的学习总结](https://github.com/WuJialei/Accumulation/blob/master/28.关于Flink的学习总结.md)
+
+- [29.关于ZooKeeper的学习总结](https://github.com/WuJialei/Accumulation/blob/master/29.关于ZooKeeper的学习总结.md)
