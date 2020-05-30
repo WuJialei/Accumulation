@@ -42,4 +42,4 @@
 
 - [29.关于ZooKeeper的学习总结](https://github.com/WuJialei/Accumulation/blob/master/29.关于ZooKeeper的学习总结.md)
 
-- [30.关于Kafka的学习总结.md](https://github.com/WuJialei/Accumulation/blob/master/30.关于Kafka的学习总结.md)
+- [30.关于Kafka的学习总结](https://github.com/WuJialei/Accumulation/blob/master/30.关于Kafka的学习总结.md)
