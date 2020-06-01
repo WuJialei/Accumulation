@@ -47,3 +47,5 @@
 - [31.Flink中Kafka连接器的使用](https://github.com/WuJialei/Accumulation/blob/master/31.Flink中Kafka连接器的使用.md)
 
 - [32.关于Elasticsearch的学习总结](https://github.com/WuJialei/Accumulation/blob/master/32.关于Elasticsearch的学习总结.md)
+
+- [33.Flink中Elasticsearch连接器的使用](https://github.com/WuJialei/Accumulation/blob/master/33.Flink中Elasticsearch连接器的使用.md)
