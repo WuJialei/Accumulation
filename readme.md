@@ -49,3 +49,5 @@
 - [32.关于Elasticsearch的学习总结](https://github.com/WuJialei/Accumulation/blob/master/32.关于Elasticsearch的学习总结.md)
 
 - [33.Flink中Elasticsearch连接器的使用](https://github.com/WuJialei/Accumulation/blob/master/33.Flink中Elasticsearch连接器的使用.md)
+
+- [34.Curator框架实现对ZooKeeper节点的永久监听](https://github.com/WuJialei/Accumulation/blob/master/34.Curator%E6%A1%86%E6%9E%B6%E5%AE%9E%E7%8E%B0%E5%AF%B9ZooKeeper%E8%8A%82%E7%82%B9%E7%9A%84%E6%B0%B8%E4%B9%85%E7%9B%91%E5%90%AC.md)
